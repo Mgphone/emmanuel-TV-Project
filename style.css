@@ -6,6 +6,18 @@ body {
   padding: 0;
 }
 
+#top-display {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  /* background-color: red; */
+  padding: 20px;
+  margin: 20px;
+  gap: 20px;
+}
+#top-display input {
+  padding: 10px;
+}
 #root {
   display: flex;
   flex-wrap: wrap;

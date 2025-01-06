@@ -1,9 +1,45 @@
 function setup() {
   const allEpisodes = getAllEpisodes();
   console.log(allEpisodes);
-  makePageForEpisodes(allEpisodes);
+  makeTopDisplay(allEpisodes);
 }
 
+function makeTopDisplay(allEpisodes) {
+  let filterInput = allEpisodes;
+  const topDisplayElem = document.getElementById("top-display");
+  const inputElement = document.createElement("input");
+  //add input
+  inputElement.type = "text";
+  inputElement.placeholder = "Search It What you Like";
+  //add label
+  const addLabel = document.createElement("label");
+  addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
+  //input event listener
+  inputElement.addEventListener("input", () => {
+    const searchName = inputElement.value.toLocaleLowerCase();
+    filterInput = filterEpisodes(allEpisodes, searchName);
+    console.log(filterInput);
+    addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
+
+    makePageForEpisodes(filterInput);
+  });
+  makePageForEpisodes(filterInput);
+  topDisplayElem.appendChild(inputElement);
+  topDisplayElem.appendChild(addLabel);
+}
+//this is function for name and summary filter
+function filterEpisodes(allEpisodes, searchName) {
+  if (searchName) {
+    filterInput = allEpisodes.filter(
+      (film) =>
+        film.name.toLocaleLowerCase().includes(searchName) ||
+        film.summary.toLocaleLowerCase().includes(searchName)
+    );
+    return filterInput;
+  } else {
+    return allEpisodes;
+  }
+}
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
   rootElem.innerHTML = ""; // Clear root element
@@ -15,7 +51,10 @@ function makePageForEpisodes(episodeList) {
 
     // Episode title
     const title = document.createElement("h2");
-    title.textContent = `${episode.name} - S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}`;
+    title.textContent = `${episode.name} - S${String(episode.season).padStart(
+      2,
+      "0"
+    )}E${String(episode.number).padStart(2, "0")}`;
     episodeCard.appendChild(title);
 
     // Episode image
