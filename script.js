@@ -34,6 +34,7 @@ function makeTopDisplay(allEpisodes, filterInput) {
     } else {
       filterInput = allEpisodes.filter((film) => film.name == e.target.value);
       makePageForEpisodes(filterInput);
+      addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
     }
   });
   //add input
