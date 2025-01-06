@@ -15,7 +15,8 @@ body {
   margin: 20px;
   gap: 20px;
 }
-#top-display input {
+#top-display input,
+#top-display select {
   padding: 10px;
 }
 #root {

@@ -1,6 +1,6 @@
 function setup() {
   const allEpisodes = getAllEpisodes();
-  // console.log(allEpisodes);
+  console.log(allEpisodes);
   let filterInput = allEpisodes;
 
   makeTopDisplay(allEpisodes, filterInput);
@@ -9,7 +9,33 @@ function setup() {
 
 function makeTopDisplay(allEpisodes, filterInput) {
   const topDisplayElem = document.getElementById("top-display");
+  const selectElement = document.createElement("select");
   const inputElement = document.createElement("input");
+  //add select
+  selectElement.id = "movie-list";
+  const allOptions = document.createElement("option");
+  allOptions.value = "all";
+  allOptions.textContent = "All...";
+  selectElement.appendChild(allOptions);
+  allEpisodes.map((movie) => {
+    const option = document.createElement("option");
+    option.value = movie.name;
+    option.textContent = `${movie.name} - S${String(movie.season).padStart(
+      2,
+      "0"
+    )}E${String(movie.number).padStart(2, "0")}`;
+    selectElement.appendChild(option);
+  });
+  //select function
+  selectElement.addEventListener("change", (e) => {
+    // console.log("you click event", e.target.value);
+    if (e.target.value == "all") {
+      makePageForEpisodes(allEpisodes);
+    } else {
+      filterInput = allEpisodes.filter((film) => film.name == e.target.value);
+      makePageForEpisodes(filterInput);
+    }
+  });
   //add input
   inputElement.type = "text";
   inputElement.placeholder = "Search It What you Like";
@@ -25,6 +51,7 @@ function makeTopDisplay(allEpisodes, filterInput) {
 
     makePageForEpisodes(filterInput);
   });
+  topDisplayElem.appendChild(selectElement);
   topDisplayElem.appendChild(inputElement);
   topDisplayElem.appendChild(addLabel);
 }
