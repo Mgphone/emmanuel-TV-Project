@@ -1,11 +1,13 @@
 function setup() {
   const allEpisodes = getAllEpisodes();
-  console.log(allEpisodes);
-  makeTopDisplay(allEpisodes);
+  // console.log(allEpisodes);
+  let filterInput = allEpisodes;
+
+  makeTopDisplay(allEpisodes, filterInput);
+  makePageForEpisodes(filterInput);
 }
 
-function makeTopDisplay(allEpisodes) {
-  let filterInput = allEpisodes;
+function makeTopDisplay(allEpisodes, filterInput) {
   const topDisplayElem = document.getElementById("top-display");
   const inputElement = document.createElement("input");
   //add input
@@ -18,12 +20,11 @@ function makeTopDisplay(allEpisodes) {
   inputElement.addEventListener("input", () => {
     const searchName = inputElement.value.toLocaleLowerCase();
     filterInput = filterEpisodes(allEpisodes, searchName);
-    console.log(filterInput);
+    // console.log(filterInput);
     addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
 
     makePageForEpisodes(filterInput);
   });
-  makePageForEpisodes(filterInput);
   topDisplayElem.appendChild(inputElement);
   topDisplayElem.appendChild(addLabel);
 }
