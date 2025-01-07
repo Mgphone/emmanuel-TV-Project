@@ -1,19 +1,26 @@
 // JavaScript code for Level 300 implementation
 
-let allEpisodes = []; // Store episodes fetched from API
+let allEpisodes = [];
 
 function setup() {
-<<<<<<< HEAD
   fetchEpisodes()
     .then((episodes) => {
       allEpisodes = episodes;
       initializeSearchAndDropdown(allEpisodes);
       makePageForEpisodes(allEpisodes);
     })
+    .then(() => {
+      console.log(allEpisodes);
+      let filterInput = allEpisodes;
+
+      makeTopDisplay(allEpisodes, filterInput);
+      makePageForEpisodes(filterInput);
+    })
     .catch((error) => {
       displayError("Failed to load episodes. Please try again later.");
       console.error("Error fetching episodes:", error);
     });
+  // const allEpisodes = getAllEpisodes();
 }
 
 function fetchEpisodes() {
@@ -23,7 +30,8 @@ function fetchEpisodes() {
     displayLoading(); // Show loading message
     fetch(API_URL)
       .then((response) => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
       })
       .then((data) => {
@@ -34,15 +42,8 @@ function fetchEpisodes() {
         hideLoading(); // Ensure loading is removed even on error
         reject(error);
       });
-=======
-  const allEpisodes = getAllEpisodes();
-  console.log(allEpisodes);
-  let filterInput = allEpisodes;
-
-  makeTopDisplay(allEpisodes, filterInput);
-  makePageForEpisodes(filterInput);
+  });
 }
-
 function makeTopDisplay(allEpisodes, filterInput) {
   const topDisplayElem = document.getElementById("top-display");
   const selectElement = document.createElement("select");
@@ -143,40 +144,6 @@ function makePageForEpisodes(episodeList) {
     episodeCard.appendChild(link);
 
     rootElem.appendChild(episodeCard);
->>>>>>> 076e6431fbbe319e9e380eda2afe98b9977bf770
-  });
-}
-
-function makePageForEpisodes(episodeList) {
-  const mainContainer = document.querySelector("main");
-  mainContainer.innerHTML = ""; // Clear previous episodes
-
-  episodeList.forEach((episode) => {
-    const episodeDiv = document.createElement("div");
-    episodeDiv.classList.add("episode");
-
-    const title = document.createElement("h2");
-    const formattedSeason = String(episode.season).padStart(2, "0");
-    const formattedNumber = String(episode.number).padStart(2, "0");
-    title.textContent = `${episode.name} - S${formattedSeason}E${formattedNumber}`;
-
-    const img = document.createElement("img");
-    img.src = episode.image ? episode.image.medium : "placeholder.jpg"; // Handle missing images
-    img.alt = `${episode.name} - S${formattedSeason}E${formattedNumber}`;
-
-    const refButton = document.createElement("button");
-    refButton.textContent = "Reference";
-    refButton.addEventListener("click", () => {
-      window.open(episode.url, "_blank");
-    });
-
-    const description = document.createElement("p");
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = episode.summary;
-    description.textContent = tempDiv.textContent || tempDiv.innerText;
-
-    episodeDiv.append(title, img, refButton, description);
-    mainContainer.appendChild(episodeDiv);
   });
 }
 
@@ -223,7 +190,9 @@ function initializeSearchAndDropdown(allEpisodes) {
     if (selectedValue === "") {
       makePageForEpisodes(allEpisodes);
     } else {
-      const selectedEpisode = allEpisodes.filter((episode) => episode.name === selectedValue);
+      const selectedEpisode = allEpisodes.filter(
+        (episode) => episode.name === selectedValue
+      );
       makePageForEpisodes(selectedEpisode);
     }
   });
