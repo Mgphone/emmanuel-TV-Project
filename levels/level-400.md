@@ -5,12 +5,33 @@ For level 400, you should work in the repo of your partner from level 200.
 Before writing any new code, look at their level 300 implementation.
 
 Compare their implementation to yours. Think:
+
 1. How is it different?
 2. What do you prefer about your implementation?
 3. What do you prefer about their implementation?
 4. What did you learn that you didn't know before?
 
-They should do the same with your repository.
+### **Answer**
+
+#### **1. a, Phone**
+
+I think the difference is that _Phone (My Implementation)_ is simple; however, it lacks UI control.
+
+#### **1. b, Emmanuel**
+
+I think UI handling is good. But I believe the `new Promise(resolve, reject)` is unnecessary because `fetch` already handles this with `.then()`. They should simplify this, just like in your repository.
+
+---
+
+#### **2 and 3**
+
+I prefer a **mix**: Phone's simplicity combined with Emmanuel's UI control.
+
+---
+
+#### **4**
+
+I learned to like **Promise resolve/reject** logic and displaying UI errors—it improves the user experience!
 
 Have a discussion about your answers to these questions. In class, together you should give a 3 minute talk about your conclusions.
 
@@ -36,10 +57,7 @@ We want to display any of them.
 2. When the user first loads the page, make a `fetch` request to https://api.tvmaze.com/shows ([documentation](https://www.tvmaze.com/api#show-index)) to get a list of available shows, and add an entry to the drop-down per show.
 3. When a user selects a show, display the episodes for that show, just like the earlier levels of this project.
 
-  You will need to perform a `fetch` to get the episode list.
-4. Make sure that your search and episode selector controls still work correctly when you change shows.
-5. Your select must list shows in alphabetical order, case-insensitive.
-6. During one user's visit to your website, you should never fetch any URL more than once.
+You will need to perform a `fetch` to get the episode list. 4. Make sure that your search and episode selector controls still work correctly when you change shows. 5. Your select must list shows in alphabetical order, case-insensitive. 6. During one user's visit to your website, you should never fetch any URL more than once.
 
 > [!NOTE]  
 > Be _careful_ when developing with fetch. By default, every time you make a small change to your app it will be restarted by live server - if you are fetching JSON on page load, the JSON will be downloaded again and again. These frequent HTTP requests may lead to the API permanently banning your IP address from further requests, or "throttling" it for some time. Worse, if they don't, they may cause performance issues for the API service we are using.
