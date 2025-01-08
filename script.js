@@ -3,9 +3,11 @@
 let allEpisodes = [];
 
 function setup() {
-  fetchEpisodes()
+  fetchEpisodes("https://api.tvmaze.com/shows")
     .then((episodes) => {
+      console.log(episodes);
       allEpisodes = episodes;
+
       initializeSearchAndDropdown(allEpisodes);
       makePageForEpisodes(allEpisodes);
     })
@@ -23,12 +25,13 @@ function setup() {
   // const allEpisodes = getAllEpisodes();
 }
 
-function fetchEpisodes() {
-  const API_URL = "https://api.tvmaze.com/shows/82/episodes";
+function fetchEpisodes(url) {
+  // const API_URL = "https://api.tvmaze.com/shows";
+  // const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 
   return new Promise((resolve, reject) => {
     displayLoading(); // Show loading message
-    fetch(API_URL)
+    fetch(url)
       .then((response) => {
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -44,28 +47,52 @@ function fetchEpisodes() {
       });
   });
 }
-function makeTopDisplay(allEpisodes, filterInput) {
-  const topDisplayElem = document.getElementById("top-display");
+function createSelectElement(allEpisodes, selectName) {
   const selectElement = document.createElement("select");
-  const inputElement = document.createElement("input");
-  //add select
-  selectElement.id = "movie-list";
+  selectElement.id = selectName;
+
   const allOptions = document.createElement("option");
   allOptions.value = "all";
   allOptions.textContent = "All...";
   selectElement.appendChild(allOptions);
-  allEpisodes.map((movie) => {
+
+  allEpisodes.forEach((episode) => {
     const option = document.createElement("option");
-    option.value = movie.name;
-    option.textContent = `${movie.name} - S${String(movie.season).padStart(
-      2,
-      "0"
-    )}E${String(movie.number).padStart(2, "0")}`;
+    option.value = episode.name;
+    option.textContent = `${episode.name} ${
+      episode.season
+        ? `-S${String(episode.season).padStart(2, "0")}E${String(
+            episode.number
+          ).padStart(2, "0")}`
+        : ""
+    }`;
     selectElement.appendChild(option);
   });
-  //select function
+
+  return selectElement;
+}
+
+function createInputElement() {
+  const inputElement = document.createElement("input");
+  inputElement.type = "text";
+  inputElement.placeholder = "Search It What you Like";
+  return inputElement;
+}
+
+function createLabel(filterInput, allEpisodes) {
+  const addLabel = document.createElement("label");
+  addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
+  return addLabel;
+}
+
+function addSelectEventListener(
+  selectElement,
+  allEpisodes,
+  makePageForEpisodes,
+  filterInput,
+  addLabel
+) {
   selectElement.addEventListener("change", (e) => {
-    // console.log("you click event", e.target.value);
     if (e.target.value == "all") {
       makePageForEpisodes(allEpisodes);
     } else {
@@ -74,25 +101,50 @@ function makeTopDisplay(allEpisodes, filterInput) {
       addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
     }
   });
-  //add input
-  inputElement.type = "text";
-  inputElement.placeholder = "Search It What you Like";
-  //add label
-  const addLabel = document.createElement("label");
-  addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
-  //input event listener
+}
+
+function addInputEventListener(
+  inputElement,
+  allEpisodes,
+  makePageForEpisodes,
+  filterInput,
+  addLabel
+) {
   inputElement.addEventListener("input", () => {
     const searchName = inputElement.value.toLocaleLowerCase();
     filterInput = filterEpisodes(allEpisodes, searchName);
-    // console.log(filterInput);
     addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
-
     makePageForEpisodes(filterInput);
   });
+}
+
+function makeTopDisplay(allEpisodes, filterInput) {
+  const topDisplayElem = document.getElementById("top-display");
+
+  const selectElement = createSelectElement(allEpisodes, "movie-list");
+  const inputElement = createInputElement();
+  const addLabel = createLabel(filterInput, allEpisodes);
+
+  addSelectEventListener(
+    selectElement,
+    allEpisodes,
+    makePageForEpisodes,
+    filterInput,
+    addLabel
+  );
+  addInputEventListener(
+    inputElement,
+    allEpisodes,
+    makePageForEpisodes,
+    filterInput,
+    addLabel
+  );
+
   topDisplayElem.appendChild(selectElement);
   topDisplayElem.appendChild(inputElement);
   topDisplayElem.appendChild(addLabel);
 }
+
 //this is function for name and summary filter
 function filterEpisodes(allEpisodes, searchName) {
   if (searchName) {
@@ -117,10 +169,13 @@ function makePageForEpisodes(episodeList) {
 
     // Episode title
     const title = document.createElement("h2");
-    title.textContent = `${episode.name} - S${String(episode.season).padStart(
-      2,
-      "0"
-    )}E${String(episode.number).padStart(2, "0")}`;
+    title.textContent = `${episode.name} ${
+      episode.season
+        ? `-S${String(episode.season).padStart(2, "0")}E${String(
+            episode.number
+          ).padStart(2, "0")}`
+        : ""
+    }`;
     episodeCard.appendChild(title);
 
     // Episode image
@@ -169,7 +224,13 @@ function initializeSearchAndDropdown(allEpisodes) {
     const formattedSeason = String(episode.season).padStart(2, "0");
     const formattedNumber = String(episode.number).padStart(2, "0");
     option.value = `${episode.name}`;
-    option.textContent = `S${formattedSeason}E${formattedNumber} - ${episode.name}`;
+    option.textContent = `${episode.name} ${
+      episode.season
+        ? `-S${String(episode.season).padStart(2, "0")}E${String(
+            episode.number
+          ).padStart(2, "0")}`
+        : ""
+    }`;
     episodeSelect.appendChild(option);
   });
 
