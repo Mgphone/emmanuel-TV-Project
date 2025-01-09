@@ -5,18 +5,23 @@ body {
   margin: 0;
   padding: 0;
 }
+.top-container {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 20px;
+  margin: 20px;
+  align-items: center;
+}
 
 #top-display {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  /* background-color: red; */
-  padding: 20px;
-  margin: 20px;
   gap: 20px;
 }
 #top-display input,
-#top-display select {
+#top-display select,
+#show-list select {
   padding: 10px;
 }
 #root {
