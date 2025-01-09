@@ -20,14 +20,13 @@ function setup() {
       displayError("Failed to load episodes. Please try again later.");
       console.error("Error fetching episodes:", error);
     });
-  // const allEpisodes = getAllEpisodes();
 }
 
 function fetchEpisodes() {
   const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 
   return new Promise((resolve, reject) => {
-    displayLoading(); // Show loading message
+    displayLoading();
     fetch(API_URL)
       .then((response) => {
         if (!response.ok)
@@ -35,26 +34,27 @@ function fetchEpisodes() {
         return response.json();
       })
       .then((data) => {
-        hideLoading(); // Remove loading message
+        hideLoading();
         resolve(data);
       })
       .catch((error) => {
-        hideLoading(); // Ensure loading is removed even on error
+        hideLoading();
         reject(error);
       });
   });
 }
-function makeTopDisplay(allEpisodes, filterInput) {
+function makeTopDisplay(allEpisodes) {
   const topDisplayElem = document.getElementById("top-display");
   const selectElement = document.createElement("select");
   const inputElement = document.createElement("input");
-  //add select
+
   selectElement.id = "movie-list";
   const allOptions = document.createElement("option");
   allOptions.value = "all";
   allOptions.textContent = "All...";
   selectElement.appendChild(allOptions);
-  allEpisodes.map((movie) => {
+
+  allEpisodes.forEach((movie) => {
     const option = document.createElement("option");
     option.value = movie.name;
     option.textContent = `${movie.name} - S${String(movie.season).padStart(
@@ -63,36 +63,38 @@ function makeTopDisplay(allEpisodes, filterInput) {
     )}E${String(movie.number).padStart(2, "0")}`;
     selectElement.appendChild(option);
   });
-  //select function
-  selectElement.addEventListener("change", (e) => {
-    // console.log("you click event", e.target.value);
-    if (e.target.value == "all") {
-      makePageForEpisodes(allEpisodes);
-    } else {
-      filterInput = allEpisodes.filter((film) => film.name == e.target.value);
-      makePageForEpisodes(filterInput);
-      addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
-    }
-  });
-  //add input
-  inputElement.type = "text";
-  inputElement.placeholder = "Search It What you Like";
-  //add label
-  const addLabel = document.createElement("label");
-  addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
-  //input event listener
-  inputElement.addEventListener("input", () => {
-    const searchName = inputElement.value.toLocaleLowerCase();
-    filterInput = filterEpisodes(allEpisodes, searchName);
-    // console.log(filterInput);
-    addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
 
-    makePageForEpisodes(filterInput);
+  selectElement.addEventListener("change", (e) => {
+    const selectedValue = e.target.value;
+    let filteredEpisodes =
+      selectedValue === "all"
+        ? allEpisodes
+        : allEpisodes.filter((film) => film.name === selectedValue);
+    updateDisplay(filteredEpisodes);
   });
+
+  inputElement.type = "text";
+  inputElement.placeholder = "Search for episodes...";
+  const addLabel = document.createElement("label");
+
+  const updateDisplay = (filterInput) => {
+    addLabel.textContent = `This is the list of Episode ${filterInput.length}/${allEpisodes.length}`;
+    makePageForEpisodes(filterInput);
+  };
+
+  inputElement.addEventListener("input", () => {
+    const searchName = inputElement.value.toLowerCase();
+    const filteredEpisodes = filterEpisodes(allEpisodes, searchName);
+    updateDisplay(filteredEpisodes);
+  });
+
+  updateDisplay(allEpisodes);
+
   topDisplayElem.appendChild(selectElement);
   topDisplayElem.appendChild(inputElement);
   topDisplayElem.appendChild(addLabel);
 }
+
 //this is function for name and summary filter
 function filterEpisodes(allEpisodes, searchName) {
   if (searchName) {
@@ -150,18 +152,15 @@ function makePageForEpisodes(episodeList) {
 function initializeSearchAndDropdown(allEpisodes) {
   const rootElem = document.getElementById("root");
 
-  // Create search bar
   const searchInput = document.createElement("input");
   searchInput.type = "text";
   searchInput.placeholder = "Search episodes...";
   searchInput.id = "search-bar";
 
-  // Create dropdown
   const episodeSelect = document.createElement("select");
   episodeSelect.id = "episode-selector";
   const defaultOption = document.createElement("option");
   defaultOption.value = "";
-  defaultOption.textContent = "Select an episode...";
   episodeSelect.appendChild(defaultOption);
 
   allEpisodes.forEach((episode) => {
@@ -173,7 +172,6 @@ function initializeSearchAndDropdown(allEpisodes) {
     episodeSelect.appendChild(option);
   });
 
-  // Event listeners
   searchInput.addEventListener("input", () => {
     const searchTerm = searchInput.value.toLowerCase();
     const filteredEpisodes = allEpisodes.filter((episode) => {
@@ -182,7 +180,6 @@ function initializeSearchAndDropdown(allEpisodes) {
       return nameMatch || summaryMatch;
     });
     makePageForEpisodes(filteredEpisodes);
-    updateEpisodeCount(filteredEpisodes.length, allEpisodes.length);
   });
 
   episodeSelect.addEventListener("change", () => {
@@ -196,23 +193,11 @@ function initializeSearchAndDropdown(allEpisodes) {
       makePageForEpisodes(selectedEpisode);
     }
   });
-
-  // Add elements to DOM
-  const controlsDiv = document.createElement("div");
-  controlsDiv.id = "controls";
-  controlsDiv.append(searchInput, episodeSelect);
-  rootElem.prepend(controlsDiv);
-
-  // Episode count display
-  const episodeCount = document.createElement("p");
-  episodeCount.id = "episode-count";
-  rootElem.append(episodeCount);
-  updateEpisodeCount(allEpisodes.length, allEpisodes.length);
 }
 
 function updateEpisodeCount(filtered, total) {
-  const episodeCount = document.getElementById("episode-count");
-  episodeCount.textContent = `Displaying ${filtered} / ${total} episodes.`;
+  const addLabel = document.createElement("label");
+  addLabel.textContent = `Displaying ${filtered} / ${total} episodes.`;
 }
 
 // Utility functions
