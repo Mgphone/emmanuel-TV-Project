@@ -1,14 +1,58 @@
-// JavaScript code for Level 300 implementation
-
-let allEpisodes = [];
+// let allEpisodes = [];
+let allShows = [];
 
 function setup() {
   fetchEpisodes("https://api.tvmaze.com/shows")
+    .then((shows) => {
+      console.log(shows);
+      allShows = shows;
+      return selectAndModifyShowsList(shows);
+    })
+    .catch((error) => {
+      displayError("Failed to load episodes. Please try again later.");
+      console.error("Error fetching episodes:", error);
+    });
+}
+
+function selectAndModifyShowsList(shows) {
+  const topDisplayElem = document.getElementById("top-display");
+  const showListHtml = document.getElementById("show-list");
+
+  topDisplayElem.innerHTML = "";
+
+  let defaultIndex = 10;
+  let path = shows[defaultIndex]._links.self.href + "/episodes";
+
+  const selectElement = document.createElement("select");
+
+  shows.forEach((show, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = show.name;
+    selectElement.appendChild(option);
+  });
+
+  showListHtml.appendChild(selectElement);
+
+  selectElement.addEventListener("change", (e) => {
+    const selectedIndex = e.target.value;
+    path = shows[selectedIndex]._links.self.href + "/episodes";
+
+    topDisplayElem.innerHTML = "";
+    //eventlistener select fetching
+    fetchEpisodes(path)
+      .then((episodes) => {
+        makeTopDisplay(episodes);
+      })
+      .catch((error) => {
+        displayError("Failed to load episodes. Please try again later.");
+        console.error("Error fetching episodes:", error);
+      });
+  });
+  //initial fetching
+  fetchEpisodes(path)
     .then((episodes) => {
-      // console.log(allEpisodes);
-      allEpisodes = episodes;
-      makeTopDisplay(allEpisodes);
-      makePageForEpisodes(allEpisodes);
+      makeTopDisplay(episodes);
     })
     .catch((error) => {
       displayError("Failed to load episodes. Please try again later.");
@@ -17,9 +61,6 @@ function setup() {
 }
 
 function fetchEpisodes(url) {
-  // const API_URL = "https://api.tvmaze.com/shows/82";
-  // const API_URL = "https://api.tvmaze.com/shows/82/episodes";
-
   return new Promise((resolve, reject) => {
     displayLoading();
     fetch(url)
@@ -38,24 +79,25 @@ function fetchEpisodes(url) {
       });
   });
 }
+
 function makeTopDisplay(allEpisodes) {
   const topDisplayElem = document.getElementById("top-display");
   const selectElement = document.createElement("select");
   const inputElement = document.createElement("input");
 
-  selectElement.id = "movie-list";
+  selectElement.id = "episode-list";
   const allOptions = document.createElement("option");
   allOptions.value = "all";
-  allOptions.textContent = "All...";
+  allOptions.textContent = "All Episodes";
   selectElement.appendChild(allOptions);
 
-  allEpisodes.forEach((movie) => {
+  allEpisodes.forEach((episode) => {
     const option = document.createElement("option");
-    option.value = movie.name;
-    option.textContent = `${movie.name} ${
-      movie.season
-        ? `-S${String(movie.season).padStart(2, "0")}E${String(
-            movie.number
+    option.value = episode.name;
+    option.textContent = `${episode.name} ${
+      episode.season
+        ? `-S${String(episode.season).padStart(2, "0")}E${String(
+            episode.number
           ).padStart(2, "0")}`
         : ""
     }`;
@@ -67,7 +109,7 @@ function makeTopDisplay(allEpisodes) {
     let filteredEpisodes =
       selectedValue === "all"
         ? allEpisodes
-        : allEpisodes.filter((film) => film.name === selectedValue);
+        : allEpisodes.filter((episode) => episode.name === selectedValue);
     updateDisplay(filteredEpisodes);
   });
 
@@ -96,12 +138,13 @@ function makeTopDisplay(allEpisodes) {
 function filterEpisodes(allEpisodes, searchName) {
   return searchName
     ? allEpisodes.filter(
-        (film) =>
-          film.name.toLocaleLowerCase().includes(searchName) ||
-          film.summary.toLocaleLowerCase().includes(searchName)
+        (episode) =>
+          episode.name.toLowerCase().includes(searchName) ||
+          episode.summary.toLowerCase().includes(searchName)
       )
     : allEpisodes;
 }
+
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
   rootElem.innerHTML = "";
