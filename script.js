@@ -3,18 +3,12 @@
 let allEpisodes = [];
 
 function setup() {
-  fetchEpisodes()
+  fetchEpisodes("https://api.tvmaze.com/shows")
     .then((episodes) => {
+      // console.log(allEpisodes);
       allEpisodes = episodes;
-      initializeSearchAndDropdown(allEpisodes);
+      makeTopDisplay(allEpisodes);
       makePageForEpisodes(allEpisodes);
-    })
-    .then(() => {
-      console.log(allEpisodes);
-      let filterInput = allEpisodes;
-
-      makeTopDisplay(allEpisodes, filterInput);
-      makePageForEpisodes(filterInput);
     })
     .catch((error) => {
       displayError("Failed to load episodes. Please try again later.");
@@ -22,12 +16,13 @@ function setup() {
     });
 }
 
-function fetchEpisodes() {
-  const API_URL = "https://api.tvmaze.com/shows/82/episodes";
+function fetchEpisodes(url) {
+  // const API_URL = "https://api.tvmaze.com/shows/82";
+  // const API_URL = "https://api.tvmaze.com/shows/82/episodes";
 
   return new Promise((resolve, reject) => {
     displayLoading();
-    fetch(API_URL)
+    fetch(url)
       .then((response) => {
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -57,10 +52,13 @@ function makeTopDisplay(allEpisodes) {
   allEpisodes.forEach((movie) => {
     const option = document.createElement("option");
     option.value = movie.name;
-    option.textContent = `${movie.name} - S${String(movie.season).padStart(
-      2,
-      "0"
-    )}E${String(movie.number).padStart(2, "0")}`;
+    option.textContent = `${movie.name} ${
+      movie.season
+        ? `-S${String(movie.season).padStart(2, "0")}E${String(
+            movie.number
+          ).padStart(2, "0")}`
+        : ""
+    }`;
     selectElement.appendChild(option);
   });
 
@@ -95,22 +93,18 @@ function makeTopDisplay(allEpisodes) {
   topDisplayElem.appendChild(addLabel);
 }
 
-//this is function for name and summary filter
 function filterEpisodes(allEpisodes, searchName) {
-  if (searchName) {
-    filterInput = allEpisodes.filter(
-      (film) =>
-        film.name.toLocaleLowerCase().includes(searchName) ||
-        film.summary.toLocaleLowerCase().includes(searchName)
-    );
-    return filterInput;
-  } else {
-    return allEpisodes;
-  }
+  return searchName
+    ? allEpisodes.filter(
+        (film) =>
+          film.name.toLocaleLowerCase().includes(searchName) ||
+          film.summary.toLocaleLowerCase().includes(searchName)
+      )
+    : allEpisodes;
 }
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
-  rootElem.innerHTML = ""; // Clear root element
+  rootElem.innerHTML = "";
 
   episodeList.forEach((episode) => {
     // Create episode container
@@ -119,10 +113,13 @@ function makePageForEpisodes(episodeList) {
 
     // Episode title
     const title = document.createElement("h2");
-    title.textContent = `${episode.name} - S${String(episode.season).padStart(
-      2,
-      "0"
-    )}E${String(episode.number).padStart(2, "0")}`;
+    title.textContent = `${episode.name} ${
+      episode.season
+        ? `-S${String(episode.season).padStart(2, "0")}E${String(
+            episode.number
+          ).padStart(2, "0")}`
+        : ""
+    }`;
     episodeCard.appendChild(title);
 
     // Episode image
@@ -147,57 +144,6 @@ function makePageForEpisodes(episodeList) {
 
     rootElem.appendChild(episodeCard);
   });
-}
-
-function initializeSearchAndDropdown(allEpisodes) {
-  const rootElem = document.getElementById("root");
-
-  const searchInput = document.createElement("input");
-  searchInput.type = "text";
-  searchInput.placeholder = "Search episodes...";
-  searchInput.id = "search-bar";
-
-  const episodeSelect = document.createElement("select");
-  episodeSelect.id = "episode-selector";
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  episodeSelect.appendChild(defaultOption);
-
-  allEpisodes.forEach((episode) => {
-    const option = document.createElement("option");
-    const formattedSeason = String(episode.season).padStart(2, "0");
-    const formattedNumber = String(episode.number).padStart(2, "0");
-    option.value = `${episode.name}`;
-    option.textContent = `S${formattedSeason}E${formattedNumber} - ${episode.name}`;
-    episodeSelect.appendChild(option);
-  });
-
-  searchInput.addEventListener("input", () => {
-    const searchTerm = searchInput.value.toLowerCase();
-    const filteredEpisodes = allEpisodes.filter((episode) => {
-      const nameMatch = episode.name.toLowerCase().includes(searchTerm);
-      const summaryMatch = episode.summary.toLowerCase().includes(searchTerm);
-      return nameMatch || summaryMatch;
-    });
-    makePageForEpisodes(filteredEpisodes);
-  });
-
-  episodeSelect.addEventListener("change", () => {
-    const selectedValue = episodeSelect.value;
-    if (selectedValue === "") {
-      makePageForEpisodes(allEpisodes);
-    } else {
-      const selectedEpisode = allEpisodes.filter(
-        (episode) => episode.name === selectedValue
-      );
-      makePageForEpisodes(selectedEpisode);
-    }
-  });
-}
-
-function updateEpisodeCount(filtered, total) {
-  const addLabel = document.createElement("label");
-  addLabel.textContent = `Displaying ${filtered} / ${total} episodes.`;
 }
 
 // Utility functions
