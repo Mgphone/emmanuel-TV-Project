@@ -1,11 +1,11 @@
 // let allEpisodes = [];
-let allShows = [];
+// let allShows = [];
 
 function setup() {
   fetchEpisodes("https://api.tvmaze.com/shows")
     .then((shows) => {
-      console.log(shows);
-      allShows = shows;
+      // console.log(shows);
+      // allShows = shows;
       return selectAndModifyShowsList(shows);
     })
     .catch((error) => {
@@ -14,13 +14,13 @@ function setup() {
     });
 }
 
-function selectAndModifyShowsList(shows) {
+function selectAndModifyShowsList(allShows) {
   const topDisplayElem = document.getElementById("top-display");
   const showListHtml = document.getElementById("show-list");
-
+  const shows = allShows.sort((a, b) => a.name.localeCompare(b.name));
   topDisplayElem.innerHTML = "";
 
-  let defaultIndex = 10;
+  let defaultIndex = 32;
   let path = shows[defaultIndex]._links.self.href + "/episodes";
 
   const selectElement = document.createElement("select");
@@ -29,6 +29,9 @@ function selectAndModifyShowsList(shows) {
     const option = document.createElement("option");
     option.value = index;
     option.textContent = show.name;
+    if (index === defaultIndex) {
+      option.selected = true;
+    }
     selectElement.appendChild(option);
   });
 
